@@ -3,9 +3,9 @@
 name: ExifToolWrapper.cs
 description: C# Wrapper for Phil Harvey's excellent ExifTool
 url: https://github.com/FileMeta/ExifToolWrapper/raw/master/ExifToolWrapper.cs
-version: 1.1
+version: 1.2
 keywords: CodeBit
-dateModified: 2018-12-16
+dateModified: 2019-12-14
 license: http://unlicense.org
 about: https://sno.phy.queensu.ca/~phil/exiftool/
 # Metadata in MicroYaml format. See http://filemeta.org/CodeBit.html
@@ -73,10 +73,17 @@ namespace ExifToolWrapper
             psi.RedirectStandardOutput = true;
             psi.StandardOutputEncoding = s_Utf8NoBOM;
 
-            m_exifTool = Process.Start(psi);
-            if (m_exifTool == null || m_exifTool.HasExited)
+            try
             {
-                throw new ApplicationException("Failed to launch ExifTool!");
+                m_exifTool = Process.Start(psi);
+                if (m_exifTool == null || m_exifTool.HasExited)
+                {
+                    throw new ApplicationException("Failed to launch ExifTool!");
+                }
+            }
+            catch (System.ComponentModel.Win32Exception err)
+            {
+                throw new ApplicationException("Failed to load ExifTool. 'ExifTool.exe' should be located in the same directory as the application or on the path.", err);
             }
 
             // ProcessStartInfo in .NET Framework doesn't have a StandardInputEncoding property (though it does in .NET Core)
